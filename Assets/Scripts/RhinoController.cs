@@ -25,23 +25,54 @@ public class RhinoController : MonoBehaviour
     private NavMeshAgent navMeshAgent;
     private AudioSource audioSource;
     private Animator animator;
+    private Collider mCollider;
 
     public float hitOffset = 1;
     public Transform target;
+    private bool isImpacting;
 
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+        mCollider = GetComponent<Collider>();
     }
+
     private void OnEnable()
     {
-        StartCoroutine("ProcessImpact");
+        var go = GameObject.FindGameObjectWithTag(crystalTag);
+        if(go != null)
+        {
+            target = go.transform;
+            StartCoroutine("ProcessState");
+        }
+    }
+
+    private IEnumerator ProcessState()
+    {
+        while(target != null)
+        {
+            navMeshAgent.speed = walkingSpeed;
+            var randomRad = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+            float distance = Vector3.Distance(impactTarget.position, transform.position);
+            var randomPos = target.position + new Vector3(Mathf.Cos(randomRad), 0, Mathf.Sin(randomRad)) * distance;
+            navMeshAgent.SetDestination(randomPos);
+            yield return null;
+            while(navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance)
+            {
+                yield return null;
+            }
+            if (target == null)
+                yield break;
+            yield return StartCoroutine("ProcessImpact");
+            yield return new WaitForSeconds(2f);
+        }
     }
 
     private IEnumerator ProcessImpact()
     {
+        transform.LookAt(target);
         aimSlider.gameObject.SetActive(true);
         aimSlider.value = aimSlider.minValue;
         aimSlider.maxValue = impactChargeTime;
@@ -51,6 +82,7 @@ public class RhinoController : MonoBehaviour
             aimSlider.value += Time.deltaTime;
             yield return null;
         }
+        aimSlider.gameObject.SetActive(false);
         navMeshAgent.speed = impactSpeed;
         RaycastHit hit;
         float distance = Vector3.Distance(impactTarget.position, transform.position);
@@ -63,14 +95,44 @@ public class RhinoController : MonoBehaviour
             }
         }
         navMeshAgent.SetDestination(targetPos - transform.forward * hitOffset);
-    }
-    private void Update()
-    {
-        //navMeshAgent.SetDestination(target.position);
+        yield return null;
+        isImpacting = true;
+        while (navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance)
+        {
+            yield return null;
+        }
+        isImpacting = false;
     }
 
     public void TriggerRoarSound()
     {
         audioSource.PlayOneShot(roarSound);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (isImpacting)
+        {
+            PlayHitEffect();
+            var attackableObj = other.GetComponent<AttackableBehavior>();
+            if (attackableObj != null)
+                attackableObj.Hurt(impactDamage);
+        }
+    }
+
+    private void PlayHitEffect()
+    {
+        explosionEffect.Play();
+        audioSource.PlayOneShot(impactSound);
+    }
+
+    public void OnDead()
+    {
+        StopAllCoroutines();
+        aimSlider.gameObject.SetActive(false);
+        navMeshAgent.enabled = false;
+        audioSource.PlayOneShot(deadSound);
+        animator.SetTrigger(deadTrigger);
+        mCollider.enabled = false;
     }
 }
