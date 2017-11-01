@@ -5,30 +5,33 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 public class HeroController : MonoBehaviour
 {
-    public NavMeshAgent navMeshAgent;
+    private NavMeshAgent navMeshAgent;
     public float attackRadius;
     public RectTransform attackRangeRect;
     public LayerMask enemyLayerMask;
     public Color detectColor;
     public Color normalColor;
     public Image attackProbeCircle;
-    public GameObject target;
+    public AttackableBehavior target;
     public float turnSmooth = 15f;
-    public Animator animator;
+    public int gunDamage = 10;
+    private Animator animator;
     public string attackBool = "attack";
-    public AudioSource audioSource;
+    private AudioSource audioSource;
     public AudioClip fireSound;
-    //----------------------------
+    public AudioClip deadSound;
     public ParticleSystem gunShotEffect;
-    //----------------------------
+    private RagdollBehavior ragdollBehavior;
+    private Collider mCollider;
+
     private void Awake()
     {
         attackRadius = attackRangeRect.rect.width / 2;
-    }
-    // Use this for initialization
-    void Start()
-    {
-
+        ragdollBehavior = GetComponent<RagdollBehavior>();
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+        mCollider = GetComponent<Collider>();
     }
 
     // Update is called once per frame
@@ -52,6 +55,8 @@ public class HeroController : MonoBehaviour
 
     public void Move(Vector3 target)
     {
+        if (navMeshAgent.enabled == false)
+            return;
         navMeshAgent.SetDestination(target);
         navMeshAgent.isStopped = false;
     }
@@ -62,7 +67,7 @@ public class HeroController : MonoBehaviour
         if (allCollider.Length > 0)
         {
             attackProbeCircle.color = detectColor;
-            target = allCollider[0].gameObject;
+            target = allCollider[0].GetComponent<AttackableBehavior>();
         }
         else
         {
@@ -74,9 +79,20 @@ public class HeroController : MonoBehaviour
 
     public void OnGunTrigger()
     {
+        if(target != null)
+            target.Hurt(gunDamage);
         audioSource.PlayOneShot(fireSound);
-        //----------------------------
         gunShotEffect.Play();
-        //----------------------------
+    }
+
+    public void OnDead()
+    {
+        navMeshAgent.enabled = false;
+        animator.enabled = false;
+        attackProbeCircle.enabled = false;
+        mCollider.enabled = false;
+        enabled = false;
+        ragdollBehavior.ToggleRagdoll(true);
+        audioSource.PlayOneShot(deadSound);
     }
 }
