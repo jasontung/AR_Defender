@@ -16,16 +16,20 @@ public class AIMoveBehavior : MonoBehaviour {
 
     private void Update()
     {
-        float speed = navMeshAgent.desiredVelocity.sqrMagnitude;
-        if(navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+        float speed = 0;
+        if (navMeshAgent.enabled)
         {
-            speed = 0f;
-            //navMeshAgent.isStopped = true;
-        }
-        else if(speed != 0f)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(navMeshAgent.desiredVelocity);
-            transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, turnSmooth * Time.deltaTime);
+            speed = navMeshAgent.desiredVelocity.sqrMagnitude;
+            if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+            {
+                speed = 0f;
+                //navMeshAgent.isStopped = true;
+            }
+            else if (speed != 0f)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(navMeshAgent.desiredVelocity);
+                transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, turnSmooth * Time.deltaTime);
+            }
         }
         animator.SetFloat(animSpeedParam, speed);
     }
