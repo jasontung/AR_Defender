@@ -108,6 +108,7 @@ GameObject:
   - component: {fileID: 135597732899177968}
   - component: {fileID: 54449129042875860}
   - component: {fileID: 114500751913681052}
+  - component: {fileID: 114511298973781762}
   m_Layer: 0
   m_Name: Crystal
   m_TagString: crystal
@@ -303,9 +304,9 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1601034414914880}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 50, y: 50, z: 50}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.07, y: 0, z: -0.149}
+  m_LocalScale: {x: 12.925239, y: 12.925239, z: 12.925239}
   m_Children:
   - {fileID: 224488673103320432}
   - {fileID: 4104379717781186}
@@ -561,7 +562,18 @@ MonoBehaviour:
   healthSlider: {fileID: 114882760424839842}
   onDead:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114511298973781762}
+        m_MethodName: OnDead
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   onHurt:
@@ -569,6 +581,23 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
+--- !u!114 &114511298973781762
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1601034414914880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e685e4cc26d16384ea31af4d2bf6ff42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  crystalChargeTotalTime: 300
+  powerSlider: {fileID: 0}
+  progressLabel: {fileID: 0}
+  powerEffect: {fileID: 198161875448338316}
+  chargeCompleteEffect: {fileID: 198593280416314096}
+  isDead: 0
 --- !u!114 &114575732451623632
 MonoBehaviour:
   m_ObjectHideFlags: 1

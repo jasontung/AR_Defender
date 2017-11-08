@@ -11,7 +11,12 @@ public class EnemySpawner : MonoBehaviour
     public float intervalTime = 5f;
     public void OnEnable()
     {
-        StartCoroutine(ProcessSpawn());
+        StartCoroutine("ProcessSpawn");
+    }
+
+    public void OnDisable()
+    {
+        StopCoroutine("ProcessSpawn");
     }
 
     private IEnumerator ProcessSpawn()
